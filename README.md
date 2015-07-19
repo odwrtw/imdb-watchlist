@@ -11,14 +11,14 @@ import (
 	"fmt"
 	"log"
 
-	"gitlab.quimbo.fr/odwrtw/imdb-watchlist"
+	"github.com/odwrtw/imdb-watchlist"
 )
 
 func main() {
 	wl := "http://www.imdb.com/user/ur27482023/watchlist"
 
 	fmt.Println("Fetching watchlist:", wl)
-	ids, err := watchlist.GetWatchlistIDs(wl)
+	ids, err := imdbwatchlist.GetWatchlistIDs(wl)
 	if err != nil {
 		log.Panic(err)
 	}

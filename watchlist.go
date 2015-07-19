@@ -1,4 +1,4 @@
-package watchlist
+package imdbwatchlist
 
 import (
 	"io/ioutil"
