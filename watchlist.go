@@ -61,14 +61,10 @@ func getIdsPage(userid string, filter string, sort string, page int) (*[]string,
 }
 
 func getIds(userid string, filter string, sort string) (*[]string, error) {
+	var matches []string
 	page := 1
-	matches, err := getIdsPage(userid, filter, sort, page)
-	if err != nil {
-		return nil, err
-	}
 
 	for {
-		page++
 		curMatches, err := getIdsPage(userid, filter, sort, page)
 
 		if err != nil {
@@ -80,10 +76,12 @@ func getIds(userid string, filter string, sort string) (*[]string, error) {
 			break
 		}
 
-		*matches = append(*matches, *curMatches...)
+		matches = append(matches, *curMatches...)
+		page++
 	}
-	unique(matches)
-	return matches, nil
+
+	unique(&matches)
+	return &matches, nil
 }
 
 // GetMovies from userid return slice of ids
