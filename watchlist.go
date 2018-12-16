@@ -1,17 +1,17 @@
 package imdbwatchlist
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
-	"errors"
 )
 
 var (
-	imdbIDRegexp = regexp.MustCompile("tt\\d{7}")
-	imdbUserRe   = regexp.MustCompile("ur\\d{8}") // DEPRECIATED
+	imdbIDRegexp = regexp.MustCompile(`tt\d{7}`)
+	imdbUserRe   = regexp.MustCompile(`ur\d{8}`) // DEPRECIATED
 	baseURL      = "http://www.imdb.com/user/"
 )
 
@@ -64,23 +64,24 @@ func getIds(userid string, filter string, sort string) (*[]string, error) {
 	var matches []string
 	page := 1
 
+	var previousListCount = 0
 	for {
 		curMatches, err := getIdsPage(userid, filter, sort, page)
-
 		if err != nil {
 			return nil, err
 		}
 
-		//Invalid page numbers still give one match
-		if len(*curMatches) <= 1 {
+		matches = append(matches, *curMatches...)
+		unique(&matches)
+		currentListCount := len(matches)
+		if currentListCount == previousListCount {
+			// Nothing new, let's break the loop
 			break
 		}
-
-		matches = append(matches, *curMatches...)
+		previousListCount = currentListCount
 		page++
 	}
 
-	unique(&matches)
 	return &matches, nil
 }
 
