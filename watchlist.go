@@ -2,11 +2,13 @@ package imdbwatchlist
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
+	"time"
 )
 
 var (
@@ -41,11 +43,18 @@ func getIdsPage(userid string, filter string, sort string, page int) (*[]string,
 	parameters.Add("page", strconv.Itoa(page))
 	URL.RawQuery = parameters.Encode()
 
-	resp, err := http.Get(URL.String())
+	var httpClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := httpClient.Get(URL.String())
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("got http error %q", resp.StatusCode)
+	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
